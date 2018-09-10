@@ -30,8 +30,38 @@ namespace Genetics
 
         private void calcularFitness()
         {
-            fitness = posiciones.Distinct().Count();
+            int dx, dy;
+            int choques = 0;
+            choques += Math.Abs(posiciones.Length - posiciones.Distinct().Count());
+
+            for (int i = 0; i < posiciones.Length; i++)
+            {
+                for (int j = 0; j < posiciones.Length; j++)
+                {
+                    if (i != j)
+                    {
+                        dx = Math.Abs(i - j);
+                        dy = Math.Abs(posiciones[i] - posiciones[j]);
+                        if (dx == dy)
+                        {
+                            choques += 1;
+                        }
+                    }
+                }
+            }
+            fitness = choques;
         }
+
+        public void mutar()
+        {
+            Random r = new Random();
+
+            int randomColumna = r.Next(0, posiciones.Length);
+            int randomFila = r.Next(1, posiciones.Length + 1);
+
+            posiciones[randomColumna] = randomFila;
+        }
+
 
         public int[] getPosiciones()
         {

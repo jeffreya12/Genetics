@@ -8,29 +8,22 @@ namespace Genetics
 {
     class Program
     {
-
-        static int n = 8;
-        static Individuo[] poblacion = new Individuo[n];
-        static Boolean found = false;
-
-        static void generarPoblacion()
-        {
-            for (int i = 0; i < n; i++)
-            {
-                poblacion[i] = new Individuo(n);
-                if (poblacion[i].getFitness() == 0)
-                {
-                    found = true;
-                }
-            }
-        }
-
         static void Main(string[] args)
         {
-            while (!found)
+            int n = 8;
+            //Individuo[] poblacion = new Individuo[n];
+            Individuo individuo;
+            //for (int i = 0; i < 1000000; i++)
+            while (true)
             {
-                generarPoblacion();
+                //poblacion[i] = new Individuo(n);
+                individuo = new Individuo(n);
+                if (individuo.getFitness() == 0) break;
             }
+
+            Console.Write(individuo.ToString());
+            System.Threading.Thread.Sleep(500000);
+
         }
     }
 }
