@@ -9,13 +9,13 @@ namespace Genetics
     class NReinas
     {
         const int n = 8;
-        const int tamanioPoblacion = 1;
-        const int tasaMutacion = 10;
+        const int tamanioPoblacion = 500;
+        const int tasaMutacion = 30;
         static Individuo[] poblacion = new Individuo[tamanioPoblacion];
 
         static void Main(string[] args)
         {
-            /*
+            
             Individuo individuo;
             int ind = 0;
             while (true)
@@ -26,14 +26,16 @@ namespace Genetics
                 if (individuo.getFitness() == 0) break;
             }
 
-            Console.Write(individuo.ToString() + "\n" + ind + "\n");
-            System.Threading.Thread.Sleep(500000);
-            */
-            
-            Individuo solution = geneticAlg();
+            Console.Write(individuo.ToString() + "\n" + ind);
+
+            /*
+            Individuo solution = genetic();
 
             Console.Out.WriteLine(solution.ToString());
+            */
+
             Console.ReadLine();
+
         }
 
         public static void crearPoblacion()
@@ -47,8 +49,9 @@ namespace Genetics
         public static Individuo cruzar(Individuo padreX, Individuo padreY)
         {
             Individuo nuevoIndividuo;
+            Random rnd = new Random(Guid.NewGuid().GetHashCode());
 
-            int puntoDeCruce = n / 2;
+            int puntoDeCruce = rnd.Next(0, n - 1);
 
             int[] primeraMitad = padreX.getPosiciones().Take(puntoDeCruce).ToArray();
             int[] segundaMitad = padreY.getPosiciones().Skip(puntoDeCruce).ToArray();
@@ -62,77 +65,75 @@ namespace Genetics
         public static Individuo elegirPadre()
         {
             Random rnd = new Random(Guid.NewGuid().GetHashCode());
-            int total = 0;
+            int mayorFitness = 0;
+            int menorFitness = int.MaxValue;
             int randomFitness;
 
-            // Get current total fitness
             for (int i = 0; i < tamanioPoblacion; i++)
             {
-                total += poblacion[i].getFitness();
+                if(poblacion[i].getFitness() > mayorFitness)
+                {
+                    mayorFitness = poblacion[i].getFitness();
+                }
+                else if (poblacion[i].getFitness() < menorFitness)
+                {
+                    menorFitness = poblacion[i].getFitness();
+                }
             }
 
-            randomFitness = rnd.Next(0, total);
+            randomFitness = rnd.Next(menorFitness, mayorFitness);
 
-            // Choose random parent, higher fitness has higher chance
             for (int i = 0; i < tamanioPoblacion; i++)
             {
-                if (randomFitness < poblacion[i].getFitness())
+                if (poblacion[i].getFitness() <= randomFitness)
                 {
                     return poblacion[i];
                 }
-                randomFitness = randomFitness - poblacion[i].getFitness();
             }
 
             return null;
         }
 
-        public static Individuo geneticAlg()
+        public static Individuo genetic()
         {
-            Individuo child;
+            Individuo nuevoIndividuo;
             Random rnd = new Random(Guid.NewGuid().GetHashCode());
-            Individuo[] tempPopulation = new Individuo[tamanioPoblacion];
+            Individuo[] poblacionTemp = new Individuo[tamanioPoblacion];
 
-            int highestFitness = 100000000;
+            int mejorFitness = int.MaxValue;
             int generation = 0;
 
             crearPoblacion();
-
-            child = poblacion[0];
 
             while (true)
             {
                 generation++;
 
-                // Begin creation of new generation
                 for (int i = 0; i < tamanioPoblacion; i++)
                 {
-                    // Choose two parents and create a child
-                    child = cruzar(elegirPadre(), elegirPadre());
+                    nuevoIndividuo = cruzar(elegirPadre(), elegirPadre());
 
-                    // Check to see if child is a solution
-                    if (child.getFitness() == 0)
+                    if (nuevoIndividuo.getFitness() == 0)
                     {
-                        Console.Out.WriteLine("Fitness: " + child.getFitness() + " Generation: " + generation);
-                        return child;
+                        Console.Out.WriteLine("Fitness: " + nuevoIndividuo.getFitness() + " Generation: " + generation);
+                        return nuevoIndividuo;
                     }
 
-                    // Mutation change
                     if (tasaMutacion > rnd.Next(0, 100))
                     {
-                        child.mutar();
+                        nuevoIndividuo.mutar();
                     }
 
-                    // Check childs fitness
-                    if (child.getFitness() < highestFitness)
+                    if (nuevoIndividuo.getFitness() < mejorFitness)
                     {
-                        highestFitness = child.getFitness();
+                        mejorFitness = nuevoIndividuo.getFitness();
                     }
 
-                    tempPopulation[i] = child;
+                    poblacionTemp[i] = nuevoIndividuo;
                 }
 
-                poblacion = tempPopulation;
-                Console.Out.WriteLine("Fitness: " + highestFitness + " Generation: " + generation);
+                poblacion = poblacionTemp;
+                Console.Out.WriteLine("Fitness: " + mejorFitness + " Generation: " + generation);
             }
         }
     }
