@@ -11,6 +11,12 @@ namespace Genetics
         private int[] posiciones;
         private int fitness;
 
+        public Individuo(int[] posiciones)
+        {
+            this.posiciones = posiciones;
+            calcularFitness();
+        }
+
         public Individuo(int n)
         {
             posiciones = new int[n];
@@ -54,10 +60,10 @@ namespace Genetics
 
         public void mutar()
         {
-            Random r = new Random();
+            Random rnd = new Random(Guid.NewGuid().GetHashCode());
 
-            int randomColumna = r.Next(0, posiciones.Length);
-            int randomFila = r.Next(1, posiciones.Length + 1);
+            int randomColumna = rnd.Next(0, posiciones.Length);
+            int randomFila = rnd.Next(1, posiciones.Length + 1);
 
             posiciones[randomColumna] = randomFila;
         }
@@ -65,7 +71,7 @@ namespace Genetics
 
         public int[] getPosiciones()
         {
-            return posiciones;
+            return (int[])posiciones.Clone();
         }
 
         public int getFitness()
