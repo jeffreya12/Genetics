@@ -8,36 +8,38 @@ namespace Genetics
 {
     class NReinas
     {
-        static int n;
-        static int tamanioPoblacion;
-        static int tasaMutacion;
-        static Individuo[] poblacion;
+        const int n = 6;
+        const int tamanioPoblacion = 10;
+        const int tasaMutacion = 30;
+        static Individuo[] poblacion = new Individuo[tamanioPoblacion];
 
         static void Main(string[] args)
         {
-            Console.WriteLine("Cantidad de reinas: ");
-            n = Convert.ToInt32(Console.ReadLine());
+            /*
+            Individuo individuo;
+            int ind = 0;
+            while (true)
+            {
+                ind++;
+                //poblacion[i] = new Individuo(n);
+                individuo = new Individuo(n);
+                if (individuo.getFitness() == 0) break;
+            }
 
-            Console.WriteLine("\nTamaño de la población: ");
-            tamanioPoblacion = Convert.ToInt32(Console.ReadLine());
+            Console.Write(individuo.ToString() + "\n" + ind);
+            */
 
-            Console.WriteLine("\nTasa de mutación: ");
-            tasaMutacion = Convert.ToInt32(Console.ReadLine());
+            Individuo solution = genetic();
+            solution.printBoard();
 
-            poblacion = new Individuo[tamanioPoblacion];
-
-            Individuo solucion = genetic();
-
-            Console.WriteLine("\nSolución: \n");
-
-            solucion.printTablero();
-            Console.Out.WriteLine(solucion.ToString());
+            //Console.Out.WriteLine(solution.ToString());
             
+
             Console.ReadLine();
 
         }
 
-        public static void crearPoblacion()         //Llena el arreglo de población con individuos aleatorios
+        public static void crearPoblacion()
         {
             for (int i = 0; i < tamanioPoblacion; i++)
             {
@@ -50,13 +52,12 @@ namespace Genetics
             Individuo nuevoIndividuo;
             Random rnd = new Random(Guid.NewGuid().GetHashCode());
 
-            int puntoDeCruce = rnd.Next(0, n - 1); //Posición aleatoria en que se van a cruzar los individuos
+            int puntoDeCruce = rnd.Next(0, n - 1);
 
             int[] primeraMitad = padreX.getPosiciones().Take(puntoDeCruce).ToArray();
             int[] segundaMitad = padreY.getPosiciones().Skip(puntoDeCruce).ToArray();
             int[] nuevasPosiciones = primeraMitad.Concat(segundaMitad).ToArray();
 
-            //Crea un nuevo individuo a partir del nuevo ADN
             nuevoIndividuo = new Individuo(nuevasPosiciones);
 
             return nuevoIndividuo;
@@ -69,7 +70,6 @@ namespace Genetics
             int menorFitness = int.MaxValue;
             int randomFitness;
 
-            //Obtiene el mayor fitness y el menor fitness dentro de la población
             for (int i = 0; i < tamanioPoblacion; i++)
             {
                 if(poblacion[i].getFitness() > mayorFitness)
@@ -82,11 +82,8 @@ namespace Genetics
                 }
             }
 
-            //Elije un fitness random dentro del rango de la población
             randomFitness = rnd.Next(menorFitness, mayorFitness);
 
-            //Recorre la población y elije al primer individuo cuyo fitness sea
-            //menor al fitness elegido aleatoriamente
             for (int i = 0; i < tamanioPoblacion; i++)
             {
                 if (poblacion[i].getFitness() <= randomFitness)
@@ -105,44 +102,39 @@ namespace Genetics
             Individuo[] poblacionTemp = new Individuo[tamanioPoblacion];
 
             int mejorFitness = int.MaxValue;
-            int generacion = 0;
+            int generation = 0;
 
-            //Crea una población inicial aleatoria
             crearPoblacion();
 
             while (true)
             {
+                generation++;
+
                 for (int i = 0; i < tamanioPoblacion; i++)
                 {
-                    //Se crea un individuo a partir de dos padres aleatorios
                     nuevoIndividuo = cruzar(elegirPadre(), elegirPadre());
 
-                    //Si el nuevo individuo es la solución, termina el ciclo
                     if (nuevoIndividuo.getFitness() == 0)
                     {
+                        Console.Out.WriteLine("Fitness: " + nuevoIndividuo.getFitness() + " Generation: " + generation);
                         return nuevoIndividuo;
                     }
 
-                    //Se elige aleatoriamente si el nuevo individuo debe mutar o no
                     if (tasaMutacion > rnd.Next(0, 100))
                     {
                         nuevoIndividuo.mutar();
                     }
 
-                    //Se elige si el nuevo individuo tiene el mejor fitness al momento del cálculo
                     if (nuevoIndividuo.getFitness() < mejorFitness)
                     {
                         mejorFitness = nuevoIndividuo.getFitness();
                     }
 
-                    //El nuevo individuo pasa a ser parte de la nueva población
                     poblacionTemp[i] = nuevoIndividuo;
                 }
 
-                //Se reemplaza la población anterior con la nueva
                 poblacion = poblacionTemp;
-                generacion++;
-                Console.Out.WriteLine("Fitness: " + mejorFitness + " Generación: " + generacion);
+                Console.Out.WriteLine("Fitness: " + mejorFitness + " Generation: " + generation);
             }
         }
     }
